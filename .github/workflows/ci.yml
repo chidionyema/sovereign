@@ -9,7 +9,13 @@ jobs:
         os: [macos-14, windows-2022, ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+        # 1.79, not stable: rust-toolchain.toml pins channel 1.79, and with @stable
+        # the action installs stable's rustfmt while `cargo fmt` inside the repo
+        # overrides to 1.79 -- which has no components -- and every run dies at
+        # "'cargo-fmt' is not installed for the toolchain '1.79-aarch64-apple-darwin'"
+        # (measured, runs 35205838350 and the two below it, red since 2026-09-17).
+        # Install the pinned channel WITH the components; the pin and CI then agree.
+      - uses: dtolnay/rust-toolchain@1.79
         with:
           components: clippy, rustfmt
       - uses: Swatinem/rust-cache@v2
